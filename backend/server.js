@@ -16,7 +16,9 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
   next();
 });
 
@@ -32,7 +34,9 @@ app.post('/api/book', async (req, res) => {
     const response = await fetch(url);
     const data = await response.json();
 
-    if (!data.items || data.items.length === 0) return res.json({ description: "" });
+    if (!data.items || data.items.length === 0) {
+      return res.json({ description: "" });
+    }
 
     const info = data.items[0].volumeInfo;
     res.json({ description: info.description || "" });
