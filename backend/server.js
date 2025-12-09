@@ -1,7 +1,7 @@
 import express from 'express';
 import fetch from 'node-fetch';
 import dotenv from 'dotenv';
-import OpenAI from 'openai';
+import { Configuration, OpenAIApi } from "openai";
 
 dotenv.config();
 
@@ -16,9 +16,7 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
   next();
 });
 
@@ -34,9 +32,7 @@ app.post('/api/book', async (req, res) => {
     const response = await fetch(url);
     const data = await response.json();
 
-    if (!data.items || data.items.length === 0) {
-      return res.json({ description: "" });
-    }
+    if (!data.items || data.items.length === 0) return res.json({ description: "" });
 
     const info = data.items[0].volumeInfo;
     res.json({ description: info.description || "" });
@@ -52,11 +48,11 @@ app.post('/api/summary', async (req, res) => {
   if (!description) return res.status(400).json({ error: "책 설명이 필요합니다." });
 
   try {
-    const openai = new OpenAI({
+    const configuration = new Configuration({
       apiKey: process.env.OPENAI_KEY,
     });
+    const openai = new OpenAIApi(configuration);
 
-    // 프롬프트 작성 (요약 요청)
     const prompt = `
 책 제목: ${title}
 저자: ${author}
@@ -64,14 +60,14 @@ app.post('/api/summary', async (req, res) => {
 요청 사항: ${num}개의 문장으로, 톤: ${tone}, 언어: ${lang}으로 요약해줘.
     `;
 
-    const completion = await openai.chat.completions.create({
+    const completion = await openai.createChatCompletion({
       model: "gpt-4",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
       max_tokens: 500,
     });
 
-    const summary = completion.choices[0].message.content.trim();
+    const summary = completion.data.choices[0].message.content.trim();
     res.json({ summary });
   } catch (err) {
     res.status(500).json({ error: err.message });
