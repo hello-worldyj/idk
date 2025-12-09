@@ -1,7 +1,7 @@
 import express from 'express';
 import fetch from 'node-fetch';
 import dotenv from 'dotenv';
-import { Configuration, OpenAIApi } from "openai";
+import OpenAI from 'openai';
 
 dotenv.config();
 
@@ -52,27 +52,26 @@ app.post('/api/summary', async (req, res) => {
   if (!description) return res.status(400).json({ error: "책 설명이 필요합니다." });
 
   try {
-    const configuration = new Configuration({
+    const openai = new OpenAI({
       apiKey: process.env.OPENAI_KEY,
     });
-    const openai = new OpenAIApi(configuration);
 
     // 프롬프트 작성 (요약 요청)
     const prompt = `
-    책 제목: ${title}
-    저자: ${author}
-    책 설명: ${description}
-    요청 사항: ${num}개의 문장으로, 톤: ${tone}, 언어: ${lang}으로 요약해줘.
+책 제목: ${title}
+저자: ${author}
+책 설명: ${description}
+요청 사항: ${num}개의 문장으로, 톤: ${tone}, 언어: ${lang}으로 요약해줘.
     `;
 
-    const completion = await openai.createChatCompletion({
+    const completion = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
       max_tokens: 500,
     });
 
-    const summary = completion.data.choices[0].message.content.trim();
+    const summary = completion.choices[0].message.content.trim();
     res.json({ summary });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -82,4 +81,3 @@ app.post('/api/summary', async (req, res) => {
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
-
