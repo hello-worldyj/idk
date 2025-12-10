@@ -13,8 +13,8 @@ async function generate() {
     return;
   }
 
-  document.getElementById('intro').innerText = 'Google Books에서 불러오는 중...';
-  document.getElementById('summary').innerText = '생성 중...';
+  document.getElementById('intro').innerText = '책 정보를 불러오는 중...';
+  document.getElementById('summary').innerText = '요약을 만드는 중...';
 
   try {
     // 1) 책 설명 가져오기
@@ -46,7 +46,7 @@ async function generate() {
     document.getElementById('summary').innerText = sumData.summary || '요약 생성 실패';
 
   } catch (error) {
-    document.getElementById('intro').innerText = '책 설명을 불러오는 데 실패했습니다.';
+    document.getElementById('intro').innerText = '책 정보를 불러오는 데 실패했습니다.';
     document.getElementById('summary').innerText = '요약 생성 중 오류가 발생했습니다.';
     console.error(error);
     alert('오류가 발생했습니다. 콘솔을 확인해주세요.');
